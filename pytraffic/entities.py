@@ -1,5 +1,7 @@
-import pygame
+"""Entities to be used to create traffic simulations"""
+
 import math
+import pygame
 from .colors import BLACK, RED
 
 
@@ -9,10 +11,11 @@ def point_2_pixel(point, world, screen):
     pixel_x = screen.get_width() * (point.x / world.width)
     pixel_y = screen.get_height() * (point.y / world.height)
 
-    return pixel_x, pixel_y 
+    return pixel_x, pixel_y
 
 
 class World(object):
+    """To contain global simulation data"""
 
     def __init__(self, width, height):
         self.width = width
@@ -39,9 +42,8 @@ class Line(object):
         self.point_a = point_a
         self.point_b = point_b
 
-    
-    def render(self, world, screen):
 
+    def render(self, world, screen):
         pixel_a_x, pixel_a_y = point_2_pixel(self.point_a, world, screen)
         pixel_b_x, pixel_b_y = point_2_pixel(self.point_b, world, screen)
 
@@ -84,7 +86,6 @@ class Arc(object):
 
 
     def render(self, world, screen):
-
         p_a = Point(self.center.x - self.radius, self.center.y - self.radius)
 
         x, y = point_2_pixel(p_a, world, screen)
@@ -111,8 +112,6 @@ class Arc(object):
             sense = 1
 
         theta = self.arc[0] + sense * (length / self.radius)
-        dtheta = theta + sense * self.arc[0]
-        ds = math.sqrt((dtheta*self.radius)**2)
 
         x = self.center.x + self.radius * math.cos(theta)
         y = self.center.y - self.radius * math.sin(theta)
@@ -129,15 +128,14 @@ class Trajectory(object):
 
 
     def render(self, world, screen):
-
         for obj in self.segments:
             obj.render(world, screen)
 
 
     def distance(self):
         distance = 0
-        for _ in self.segments.distance():
-            distance += _
+        for _ in self.segments:
+            distance += _.distance()
 
         return distance
 
@@ -172,6 +170,7 @@ class Ball(object):
         self.center = trajectory.point(self.position)
         self.radius = radius
         self.color = color
+        self.speed = 0
 
 
     def set_speed(self, speed):
@@ -186,12 +185,11 @@ class Ball(object):
     def render(self, world, screen):
         if self.center is not None:
             point_a = Point(self.center.x-self.radius, self.center.y-self.radius)
-            point_b = Point(self.center.x+self.radius, self.center.y+self.radius)
 
             width = 2*self.radius
             height = 2*self.radius
             size = Point(width, height)
 
-            pygame.draw.ellipse(screen, self.color, [*point_2_pixel(point_a, world, screen), 
+            pygame.draw.ellipse(screen, self.color, [*point_2_pixel(point_a, world, screen),
                                                      *point_2_pixel(size, world, screen)])
 

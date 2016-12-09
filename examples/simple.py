@@ -5,9 +5,9 @@ Usage: simple.py
 To run an example of a simple simulation using pytraffic
 """
 
-import pygame
 from math import pi
 from docopt import docopt
+import pygame
 
 from pytraffic.entities import World
 from pytraffic.entities import Trajectory
@@ -27,10 +27,10 @@ TICK_PERIOD = 100  # In miliseconds
 def simulation():
 
     # World width and height in meters
-    world = World(1000, 1000)  
+    world = World(1000, 1000)
 
     # Now let us define a trajectory
-    trajectory = Trajectory(Line(Point(0, 50), Point(600, 50)), 
+    trajectory = Trajectory(Line(Point(0, 50), Point(600, 50)),
                             Arc(Point(600, 100), 50, (pi/2, 0)),
                             Line(Point(650, 100), Point(650, 600)),
                             Arc(Point(700, 600), 50, (pi, 3*pi/2)),
@@ -39,8 +39,8 @@ def simulation():
     # Add some vehicles (balls)
     ball1 = Ball(3, trajectory, RED)
     ball2 = Ball(3, trajectory, GREEN)
-    speed1=15
-    speed2=0
+    speed1 = 15
+    speed2 = 0
 
     screen = pygame.display.set_mode(SCREEN_SIZE)
     pygame.display.set_caption("Simulador de tráfico")
@@ -50,7 +50,7 @@ def simulation():
     _time = 0
 
     while not done:
-        
+
         clock.tick(1000/TICK_PERIOD)
         _time += (TICK_PERIOD/1000)
 
@@ -71,12 +71,12 @@ def simulation():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                done=True
+                done = True
 
         pygame.display.flip()
 
 
 if __name__ == '__main__':
-    args = docopt(__doc__)
+    ARGS = docopt(__doc__)
 
     simulation()
