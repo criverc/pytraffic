@@ -20,28 +20,29 @@ from pytraffic.colors import RED, GREEN, WHITE
 
 
 
-SCREEN_SIZE = (640, 480) # In pixels
+SCREEN_SIZE = (1266, 807) # In pixels
 TICK_PERIOD = 100  # In miliseconds
 
 
 def simulation():
 
     # World width and height in meters
-    world = World(1000, 1000)
+    world = World(298, 190)
 
     # Now let us define a trajectory
-    trajectory = Trajectory(Line(Point(0, 50), Point(600, 50)),
-                            Arc(Point(600, 100), 50, (pi/2, 0)),
-                            Line(Point(650, 100), Point(650, 600)),
-                            Arc(Point(700, 600), 50, (pi, 3*pi/2)),
-                            Line(Point(700, 650), Point(800, 650)))
+    trajectory = Trajectory(Line(Point(0.23, 29.64), Point(13.88, 39.76)),
+                            Line(Point(13.88, 39.76), Point(53.17, 62.35)),
+                            Line(Point(53.17, 62.35), Point(156.94, 99.53)),
+                            Arc(Point(157.312, 94.07), 6, (0.08 + 3*pi/2, 3*pi/2 + pi/4)),
+                            Line(Point(160.84, 98.71), Point(196, 0.5)))
 
     # Add some vehicles (balls)
-    ball1 = Ball(3, trajectory, RED)
-    ball2 = Ball(3, trajectory, GREEN)
+    ball1 = Ball(1, trajectory, RED)
+    ball2 = Ball(1, trajectory, GREEN)
     speed1 = 15
-    speed2 = 0
+    speed2 = 3
 
+    background = pygame.image.load ("cruce.png")
     screen = pygame.display.set_mode(SCREEN_SIZE)
     pygame.display.set_caption("Simulador de tráfico")
 
@@ -54,12 +55,11 @@ def simulation():
         clock.tick(1000/TICK_PERIOD)
         _time += (TICK_PERIOD/1000)
 
-        speed1 = speed1 + 1
-        speed2 = speed2 + 2
+        speed2 = speed2 + 0.3
         ball1.set_speed(speed1)
         ball2.set_speed(speed2)
 
-        screen.fill(WHITE)
+        screen.blit(background, background.get_rect())
         ball1.move(TICK_PERIOD/1000)
         ball2.move(TICK_PERIOD/1000)
 
