@@ -33,8 +33,8 @@ def simulation():
     trajectory = Trajectory(Line(Point(0.23, 29.64), Point(13.88, 39.76)),
                             Line(Point(13.88, 39.76), Point(53.17, 62.35)),
                             Line(Point(53.17, 62.35), Point(156.94, 99.53)),
-                            Arc(Point(157.312, 94.07), 6, (0.08 + 3*pi/2, 3*pi/2 + pi/4)),
-                            Line(Point(160.84, 98.71), Point(196, 0.5)))
+                            Arc(Point(158.12, 97.41), 3, (-0.33 + 3*pi/2, 2*pi - 0.33)),
+                            Line(Point(160.7, 98.12), Point(196, 0.5)))
 
     # Add some vehicles (balls)
     ball1 = Ball(1, trajectory, RED)
