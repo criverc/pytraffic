@@ -5,7 +5,7 @@ import pygame
 from .colors import BLACK, RED
 
 
-def point_2_pixel(point, world, screen):
+def point2pixel(point, world, screen):
     """To Convert a real point in real units to pixel units"""
 
     pixel_x = screen.get_width() * (point.x / world.width)
@@ -31,7 +31,7 @@ class Point(object):
 
 
     def render(self, world, screen):
-        pixel_x, pixel_y = point_2_pixel(self, world, screen)
+        pixel_x, pixel_y = point2pixel(self, world, screen)
         pygame.draw.line(screen, BLACK, [pixel_x, pixel_y], [pixel_x, pixel_y], 1)
 
 
@@ -44,8 +44,8 @@ class Line(object):
 
 
     def render(self, world, screen):
-        pixel_a_x, pixel_a_y = point_2_pixel(self.point_a, world, screen)
-        pixel_b_x, pixel_b_y = point_2_pixel(self.point_b, world, screen)
+        pixel_a_x, pixel_a_y = point2pixel(self.point_a, world, screen)
+        pixel_b_x, pixel_b_y = point2pixel(self.point_b, world, screen)
 
         pygame.draw.line(screen, BLACK, [pixel_a_x, pixel_a_y], [pixel_b_x, pixel_b_y], 1)
 
@@ -88,8 +88,8 @@ class Arc(object):
     def render(self, world, screen):
         p_a = Point(self.center.x - self.radius, self.center.y - self.radius)
 
-        x, y = point_2_pixel(p_a, world, screen)
-        dx, dy = point_2_pixel(Point(2 * self.radius, 2 * self.radius), world, screen)
+        x, y = point2pixel(p_a, world, screen)
+        dx, dy = point2pixel(Point(2 * self.radius, 2 * self.radius), world, screen)
 
         if self.arc[1] < self.arc[0]:
             arc = self.arc[1], self.arc[0]
@@ -190,6 +190,6 @@ class Ball(object):
             height = 2*self.radius
             size = Point(width, height)
 
-            pygame.draw.ellipse(screen, self.color, [*point_2_pixel(point_a, world, screen),
-                                                     *point_2_pixel(size, world, screen)])
+            pygame.draw.ellipse(screen, self.color, [*point2pixel(point_a, world, screen),
+                                                     *point2pixel(size, world, screen)])
 
