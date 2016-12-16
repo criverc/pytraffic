@@ -38,16 +38,17 @@ class Point(object):
 class Line(object):
 
 
-    def __init__(self, point_a, point_b):
+    def __init__(self, point_a, point_b, color=BLACK):
         self.point_a = point_a
         self.point_b = point_b
+        self.color = color
 
 
     def render(self, world, screen):
         pixel_a_x, pixel_a_y = point2pixel(self.point_a, world, screen)
         pixel_b_x, pixel_b_y = point2pixel(self.point_b, world, screen)
 
-        pygame.draw.line(screen, BLACK, [pixel_a_x, pixel_a_y], [pixel_b_x, pixel_b_y], 1)
+        pygame.draw.line(screen, self.color, [pixel_a_x, pixel_a_y], [pixel_b_x, pixel_b_y], 1)
 
 
     def distance(self):
@@ -74,15 +75,22 @@ class Line(object):
         return Point(x, y)
 
 
+    def get_tangent_cone(self, length, aperture, visibility_distance):
+        """Given a point length in the Line return a tangent cone"""
+        # TODO: Implement
+        pass
+
+
 class Arc(object):
 
 
-    def __init__(self, center, radius, arc):
+    def __init__(self, center, radius, arc, color=BLACK):
         """In real units, meters, and range of radians"""
 
         self.center = center
         self.radius = radius
         self.arc = arc
+        self.color = color
 
 
     def render(self, world, screen):
@@ -96,7 +104,7 @@ class Arc(object):
         else:
             arc = self.arc
 
-        pygame.draw.arc(screen, BLACK, [x, y, dx, dy], *arc, 1)
+        pygame.draw.arc(screen, self.color, [x, y, dx, dy], *arc, 1)
 
 
     def distance(self):
