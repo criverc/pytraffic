@@ -30,15 +30,17 @@ def simulation():
     world = World(188, 125.88)
 
     # Now let us define a trajectory
-    trajectory = Trajectory(Line(Point(0.23, 29.64), Point(13.88, 39.76)),
-                            Line(Point(13.88, 39.76), Point(53.17, 62.35)),
-                            Line(Point(53.17, 62.35), Point(156.94, 99.53)),
-                            Arc(Point(158.12, 97.41), 3, (-0.33 + 3*pi/2, 2*pi - 0.33)),
-                            Line(Point(160.7, 98.12), Point(196, 0.5)))
+    trajectories = [ Trajectory(Line(Point(0, 69.18), Point(99.76, 69.18)),
+                                Arc(Point(99.76, 65.88), 3.5, (3*pi/2, 2*pi)),
+                                Line(Point(102.76, 65.88), Point(102.76, 0))),
+                     Trajectory(Line(Point(188, 67.18), Point(103.53, 67.18)),
+                                Arc(Point(104.29, 65.95), 1.53, (3*pi/2, pi)),
+                                Line(Point(102.76, 65.65), Point(102.76, 0)))]
+
 
     # Add some vehicles (balls)
-    ball1 = Ball(1, trajectory, RED)
-    ball2 = Ball(1, trajectory, GREEN)
+    ball1 = Ball(1, trajectories[0], RED)
+    ball2 = Ball(1, trajectories[0], GREEN)
     speed1 = 15
     speed2 = 3
 
@@ -63,7 +65,9 @@ def simulation():
         ball1.move(TICK_PERIOD/1000)
         ball2.move(TICK_PERIOD/1000)
 
-        trajectory.render(world, screen)
+        for trajectory in trajectories:
+            trajectory.render(world, screen)
+
         ball1.render(world, screen)
         ball2.render(world, screen)
 
