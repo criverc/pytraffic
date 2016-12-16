@@ -39,8 +39,8 @@ def simulation():
 
 
     # Add some vehicles (balls)
-    ball1 = Ball(1, trajectories[0], RED)
-    ball2 = Ball(1, trajectories[0], GREEN)
+    ball1 = Ball(1, trajectories[0], color=RED, draw_cone=True)
+    ball2 = Ball(1, trajectories[0], color=GREEN, draw_cone=True)
     speed1 = 15
     speed2 = 3
 

@@ -75,10 +75,15 @@ class Line(object):
         return Point(x, y)
 
 
-    def get_tangent_cone(self, length, aperture, visibility_distance):
-        """Given a point length in the Line return a tangent cone"""
-        # TODO: Implement
-        pass
+    def get_tangent_cone(self, length, aperture, distance):
+        """Given a position by length in the line return a tangent cone
+
+        The cone is as large as given by distance"""
+
+        point = self.point(length)
+        far_point = self.point(length + distance)
+
+        return VisibilityCone(point, far_point, aperture)
 
 
 class Arc(object):
@@ -111,20 +116,39 @@ class Arc(object):
         return math.sqrt(((self.arc[1] - self.arc[0]) * self.radius)**2)
 
 
-    def point(self, length):
-        """To get the point at length along the curve"""
+    def __thetha(self, length, increase_by=0):
 
         if self.arc[1] < self.arc[0]:
             sense = -1
         else:
             sense = 1
 
-        theta = self.arc[0] + sense * (length / self.radius)
+        return self.arc[0] + sense * ((length / self.radius) + increase_by)
 
-        x = self.center.x + self.radius * math.cos(theta)
-        y = self.center.y - self.radius * math.sin(theta)
+
+    def point(self, length):
+        """To get the point at length along the curve"""
+
+        thetha = self.__thetha(length)
+
+        x = self.center.x + self.radius * math.cos(thetha)
+        y = self.center.y - self.radius * math.sin(thetha)
 
         return Point(x, y)
+
+
+    def get_tangent_cone(self, length, aperture, distance):
+        """Given a position by length in the arc return a tangent cone
+
+        The cone is as large as given by distance"""
+
+        center = self.point(length)
+        thetha = self.__thetha(length, math.pi/2)
+
+        far_point = Point(center.x + distance * math.cos(thetha),
+                          center.y - distance * math.sin(thetha))
+
+        return VisibilityCone(center, far_point, aperture)
 
 
 class Trajectory(object):
@@ -148,8 +172,8 @@ class Trajectory(object):
         return distance
 
 
-    def point(self, length):
-        """To get a point in trajectory given length along trajectory"""
+    def __segment(self, length):
+        """To get segment and its initial position where length along trajectory lies"""
 
         distance_a = 0
         distance_b = 0
@@ -163,10 +187,31 @@ class Trajectory(object):
                 break
             distance_a = distance_b
 
+        return segment, distance_a
+
+
+    def point(self, length):
+        """To get a point in trajectory given length along trajectory"""
+
+        segment, distance_a = self.__segment(length)
+
         if segment is None:
             return None
 
         return segment.point(length-distance_a)
+
+
+    def get_tangent_cone(self, length, aperture, distance):
+        """Given a position by length in the trajectory return a tangent cone
+
+        The cone is as large as given by distance"""
+
+        segment, distance_a = self.__segment(length)
+
+        if segment is None:
+            return None
+
+        return segment.get_tangent_cone(length-distance_a, aperture, distance)
 
 
 class VisibilityCone(object):
@@ -206,13 +251,14 @@ class VisibilityCone(object):
 class Ball(object):
 
 
-    def __init__(self, radius, trajectory, color=RED):
+    def __init__(self, radius, trajectory, color=RED, draw_cone=False):
         self.position = 0
         self.trajectory = trajectory
         self.center = trajectory.point(self.position)
         self.radius = radius
         self.color = color
         self.speed = 0
+        self.draw_cone = draw_cone
 
 
     def set_speed(self, speed):
@@ -235,3 +281,8 @@ class Ball(object):
             pygame.draw.ellipse(screen, self.color, [*point2pixel(point_a, world, screen),
                                                      *point2pixel(size, world, screen)])
 
+            if self.draw_cone:
+                cone = self.trajectory.get_tangent_cone(self.position, 0.47, self.radius*6)
+
+                if cone is not None:
+                    cone.render(world, screen)
