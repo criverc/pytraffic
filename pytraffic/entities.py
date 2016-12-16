@@ -2,7 +2,7 @@
 
 import math
 import pygame
-from .colors import BLACK, RED
+from .colors import BLACK, RED, BLUE
 
 
 def point2pixel(point, world, screen):
