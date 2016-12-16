@@ -20,14 +20,14 @@ from pytraffic.colors import RED, GREEN, WHITE
 
 
 
-SCREEN_SIZE = (1266, 807) # In pixels
+SCREEN_SIZE = (799, 535) # In pixels
 TICK_PERIOD = 100  # In miliseconds
 
 
 def simulation():
 
     # World width and height in meters
-    world = World(298, 190)
+    world = World(188, 125.88)
 
     # Now let us define a trajectory
     trajectory = Trajectory(Line(Point(0.23, 29.64), Point(13.88, 39.76)),
