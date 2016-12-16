@@ -169,6 +169,40 @@ class Trajectory(object):
         return segment.point(length-distance_a)
 
 
+class VisibilityCone(object):
+    """A cone of visibility"""
+
+    def __init__(self, center_point, visibility_point, aperture):
+        self.center = center_point
+        self.aperture = aperture
+        self.visibility_point = visibility_point
+
+
+    def __rotate_about_center_by_small_alpha(self, point, alpha):
+        # Use the fact that Z=exp(i*alpha) is a rotation by alpha
+        # in the complex plane, then take first order approximation
+        # in alpha to derive the following formula
+
+        return Point(point.x - (point.y - self.center.y) * alpha,
+                     point.y + (point.x - self.center.x) * alpha)
+
+
+    def is_inside_cone(point):
+        # TODO: Implement
+        return False
+
+
+    def render(self, world, screen, color=BLUE):
+        _c1 = self.__rotate_about_center_by_small_alpha(self.visibility_point, self.aperture/2)
+        _c2 = self.__rotate_about_center_by_small_alpha(self.visibility_point, -self.aperture/2)
+
+        pygame.draw.polygon(screen,
+                            color,
+                            list(map(lambda l: point2pixel(l, world, screen),
+                                     (self.center, _c1, self.visibility_point, _c2))),
+                            1)
+
+
 class Ball(object):
 
 
