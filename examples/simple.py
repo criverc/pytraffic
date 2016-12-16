@@ -37,7 +37,6 @@ def simulation():
                                 Arc(Point(104.29, 65.95), 1.53, (3*pi/2, pi)),
                                 Line(Point(102.76, 65.65), Point(102.76, 0)))]
 
-
     # Add some vehicles (balls)
     ball1 = Ball(1, trajectories[0], color=RED, draw_cone=True)
     ball2 = Ball(1, trajectories[0], color=GREEN, draw_cone=True)
