@@ -19,9 +19,32 @@ from pytraffic.entities import Ball
 from pytraffic.colors import RED, GREEN, WHITE
 
 
-
 SCREEN_SIZE = (799, 535) # In pixels
 TICK_PERIOD = 100  # In miliseconds
+
+
+def adjust_speeds(balls):
+    """To adjust speed of all balls"""
+
+    for ball in balls:
+
+        for other_ball in balls:
+
+            if ball is other_ball:
+                continue
+
+            if ball.can_see(other_ball):
+                speed_to_other_ball = ball.relative_speed_to(other_ball, TICK_PERIOD/1000)
+                if speed_to_other_ball is not None:
+                    if speed_to_other_ball < 0:
+                        # we are closing! slow down
+                        ball.set_speed(ball.speed*0.8)
+
+                    elif speed_to_other_ball > 0:
+                        # otherwise increase speed (follow)
+                        ball.set_speed(ball.speed*1.05)
+            else:
+                ball.set_speed(min(ball.base_speed, ball.speed*1.05))
 
 
 def simulation():
@@ -38,10 +61,8 @@ def simulation():
                                 Line(Point(102.76, 65.65), Point(102.76, 0)))]
 
     # Add some vehicles (balls)
-    ball1 = Ball(1, trajectories[0], color=RED, draw_cone=True)
-    ball2 = Ball(1, trajectories[0], color=GREEN, draw_cone=True)
-    speed1 = 15
-    speed2 = 3
+    red_ball = Ball(1, trajectories[0], color=RED, draw_cone=True)
+    green_ball = Ball(1, trajectories[0], color=GREEN, draw_cone=True)
 
     background = pygame.image.load ("cruce.png")
     screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -51,24 +72,39 @@ def simulation():
     clock = pygame.time.Clock()
     _time = 0
 
+    # move red ball for a few seconds
+    red_ball.set_speed(10)
+
+    while _time < 3:
+        clock.tick(1000/TICK_PERIOD)
+        _time += (TICK_PERIOD/1000)
+        screen.blit(background, background.get_rect())
+        red_ball.move(TICK_PERIOD/1000)
+        for trajectory in trajectories:
+            trajectory.render(world, screen)
+        red_ball.render(world, screen)
+        pygame.display.flip()
+
+
+    # now add green ball
+    green_ball.set_speed(30)
+
     while not done:
 
         clock.tick(1000/TICK_PERIOD)
         _time += (TICK_PERIOD/1000)
 
-        speed2 = speed2 + 0.3
-        ball1.set_speed(speed1)
-        ball2.set_speed(speed2)
-
         screen.blit(background, background.get_rect())
-        ball1.move(TICK_PERIOD/1000)
-        ball2.move(TICK_PERIOD/1000)
+        red_ball.move(TICK_PERIOD/1000)
+        green_ball.move(TICK_PERIOD/1000)
 
         for trajectory in trajectories:
             trajectory.render(world, screen)
 
-        ball1.render(world, screen)
-        ball2.render(world, screen)
+        red_ball.render(world, screen)
+        green_ball.render(world, screen)
+
+        adjust_speeds([green_ball, red_ball])
 
         print('elapsed time: %.4f seconds\r' % _time, end='')
 
