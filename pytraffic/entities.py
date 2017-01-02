@@ -251,6 +251,9 @@ class VisibilityCone(object):
 
     def is_inside_cone(self, point):
         # First check distance to center_point
+        if point is None:
+            return False
+
         if distance(point, self.center) > self.visibility_distance:
             return False
 
