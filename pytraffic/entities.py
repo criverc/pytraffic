@@ -288,11 +288,14 @@ class Ball(object):
         self.radius = radius
         self.color = color
         self.speed = 0
+        self.base_speed = None
         self.draw_cone = draw_cone
 
 
     def set_speed(self, speed):
         self.speed = speed
+        if self.base_speed is None:
+            self.base_speed = speed
 
 
     def move(self, tick):
