@@ -14,6 +14,22 @@ def point2pixel(point, world, screen):
     return pixel_x, pixel_y
 
 
+def dot_product(vector_a, vector_b):
+    return vector_a.x * vector_b.x + vector_a.y * vector_a.y
+
+
+def distance(vector_a, vector_b):
+    return math.sqrt((vector_b.x - vector_a.x)**2 + (vector_b.y - vector_a.y)**2)
+
+
+def magnitude(vector):
+    return math.sqrt((vector.x**2 + vector.y**2))
+
+
+def angle(vector_a, vector_b):
+    return math.acos(dot_product(vector_a, vector_b)/(magnitude(vector_a)*magnitude(vector_b)))
+
+
 class World(object):
     """To contain global simulation data"""
 
@@ -221,6 +237,7 @@ class VisibilityCone(object):
         self.center = center_point
         self.aperture = aperture
         self.visibility_point = visibility_point
+        self.visibility_distance = distance(visibility_point, self.center)
 
 
     def __rotate_about_center_by_small_alpha(self, point, alpha):
@@ -232,9 +249,19 @@ class VisibilityCone(object):
                      point.y + (point.x - self.center.x) * alpha)
 
 
-    def is_inside_cone(point):
-        # TODO: Implement
-        return False
+    def is_inside_cone(self, point):
+        # First check distance to center_point
+        if distance(point, self.center) > self.visibility_distance:
+            return False
+
+        # Next check the angle
+        thetha = angle(Point(point.x-self.center.x, point.y-self.center.y),
+                       Point(self.visibility_point.x-self.center.x, self.visibility_point.y-self.center.y))
+
+        if thetha*thetha > self.aperture:
+            return False
+
+        return True
 
 
     def render(self, world, screen, color=BLUE):
@@ -270,6 +297,10 @@ class Ball(object):
         self.center = self.trajectory.point(self.position)
 
 
+    def __get_visibility_cone(self):
+        return self.trajectory.get_tangent_cone(self.position, 0.47, self.radius*6)
+
+
     def render(self, world, screen):
         if self.center is not None:
             point_a = Point(self.center.x-self.radius, self.center.y-self.radius)
@@ -282,7 +313,14 @@ class Ball(object):
                                                      *point2pixel(size, world, screen)])
 
             if self.draw_cone:
-                cone = self.trajectory.get_tangent_cone(self.position, 0.47, self.radius*6)
+                cone = self.__get_visibility_cone()
 
                 if cone is not None:
                     cone.render(world, screen)
+
+
+    def can_see(self, ball):
+        """To check if input ball is within field of view"""
+
+        cone = self.__get_visibility_cone()
+        return cone.is_inside_cone(ball.center)
