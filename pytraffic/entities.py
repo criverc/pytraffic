@@ -291,6 +291,8 @@ class Ball(object):
         self.base_speed = None
         self.draw_cone = draw_cone
 
+        self.distances_to = {} # distances to other balls
+
 
     def set_speed(self, speed):
         self.speed = speed
@@ -333,3 +335,23 @@ class Ball(object):
             return cone.is_inside_cone(ball.center)
         else:
             return False
+
+
+    def distance_to(self, ball):
+        """To calculate distance to a ball"""
+
+        return distance(self.center, ball.center)
+
+
+    def relative_speed_to(self, ball, tick):
+
+        speed=None
+
+        current_distance = self.distance_to(ball)
+
+        if ball in self.distances_to:
+            last_distance = self.distances_to[ball]
+            speed = (current_distance - last_distance)/tick
+
+        self.distances_to[ball] = current_distance
+        return speed
