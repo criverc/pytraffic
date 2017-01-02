@@ -329,4 +329,7 @@ class Ball(object):
         """To check if input ball is within field of view"""
 
         cone = self.__get_visibility_cone()
-        return cone.is_inside_cone(ball.center)
+        if cone is not None:
+            return cone.is_inside_cone(ball.center)
+        else:
+            return False
