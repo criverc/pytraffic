@@ -15,7 +15,7 @@ def point2pixel(point, world, screen):
 
 
 def dot_product(vector_a, vector_b):
-    return vector_a.x * vector_b.x + vector_a.y * vector_a.y
+    return vector_a.x * vector_b.x + vector_a.y * vector_b.y
 
 
 def distance(vector_a, vector_b):
