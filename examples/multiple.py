@@ -36,17 +36,18 @@ def adjust_speeds(balls):
                 continue
 
             if ball.can_see(other_ball):
-                speed_to_other_ball = ball.relative_speed_to(other_ball, TICK_PERIOD/1000)
-                if speed_to_other_ball is not None:
-                    if speed_to_other_ball < 0:
+                speed_to_other = ball.relative_speed_to(other_ball, TICK_PERIOD/1000)
+                distance_to_other = ball.distance_to(other_ball)
+                if speed_to_other is not None:
+                    if speed_to_other < 0:
                         # we are closing! slow down
-                        ball.set_speed(ball.speed*0.8)
+                        ball.set_speed(ball.speed*(1/distance_to_other))
 
-                    elif speed_to_other_ball > 0:
+                    elif speed_to_other > 0:
                         # otherwise increase speed (follow)
-                        ball.set_speed(ball.speed*1.05)
+                        ball.set_speed(ball.speed*1.03)
             else:
-                ball.set_speed(min(ball.base_speed, ball.speed*1.05))
+                ball.set_speed(min(ball.base_speed, ball.speed*1.03))
 
 
 
