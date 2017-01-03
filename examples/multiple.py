@@ -42,7 +42,9 @@ def adjust_speeds(balls):
                 if speed_to_other is not None:
                     if speed_to_other < 0:
                         # we are closing! slow down
-                        ball.set_speed(ball.speed*(1/distance_to_other))
+                        brake_factor = max(0.3, min(1/distance_to_other, distance_to_other))
+
+                        ball.set_speed(ball.speed*brake_factor)
 
                     elif speed_to_other > 0:
                         # otherwise increase speed (follow)
