@@ -10,6 +10,7 @@ out at a regular pace with a constant speed.
 from math import pi
 from docopt import docopt
 import pygame
+from numpy.random import normal
 
 from pytraffic.entities import World
 from pytraffic.entities import Trajectory
@@ -57,13 +58,12 @@ class BallShooter(object):
     def __init__(self, trajectory):
         self.__time = 0
         self.__PERIOD = 5
-        self.__SPEED = 15
         self.__trajectory = trajectory
 
 
     def __really_spawn(self):
         ball = Ball(1, self.__trajectory, color=RED, draw_cone=True)
-        ball.set_speed(15)
+        ball.set_speed(normal(14, 4)) # mean=14m/s (50Km/h) mean, std deviation=30%
 
         return ball
 
