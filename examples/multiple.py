@@ -55,15 +55,18 @@ def adjust_speeds(balls):
 class BallShooter(object):
 
 
-    def __init__(self, trajectory):
+    def __init__(self, trajectory, period, mean, spread, color):
         self.__time = 0
-        self.__PERIOD = 5
+        self.__PERIOD = period
         self.__trajectory = trajectory
+        self.__mean = mean
+        self.__spread = spread
+        self.__color = color
 
 
     def __really_spawn(self):
-        ball = Ball(1, self.__trajectory, color=RED, draw_cone=True)
-        ball.set_speed(normal(14, 4)) # mean=14m/s (50Km/h) mean, std deviation=30%
+        ball = Ball(1, self.__trajectory, color=self.__color, draw_cone=True)
+        ball.set_speed(normal(self.__mean, self.__spread))
 
         return ball
 
@@ -106,7 +109,11 @@ def simulation():
                                 Arc(Point(104.29, 65.95), 1.53, (3*pi/2, pi)),
                                 Line(Point(102.76, 65.65), Point(102.76, 0)))]
 
-    shooter = BallShooter(trajectories[0])
+    # mean=14m/s (50Km/h), std deviation=25%
+    car_shooter = BallShooter(trajectories[0], 5, 14, 14*.25, RED)
+
+    # mean=6.1m/s (21Km/h), std deviation=25%
+    bike_shooter = BallShooter(trajectories[0], 13, 6.1, 6.1*.25, GREEN)
 
     # Add some vehicles (balls)
     balls = []
@@ -130,9 +137,13 @@ def simulation():
         for trajectory in trajectories:
             trajectory.render(world, screen)
 
-        ball = shooter.spawn(TICK_PERIOD/1000)
-        if ball is not None:
-            balls.append(ball)
+        car = car_shooter.spawn(TICK_PERIOD/1000)
+        if car is not None:
+            balls.append(car)
+
+        bike = bike_shooter.spawn(TICK_PERIOD/1000)
+        if bike is not None:
+            balls.append(bike)
 
         for ball in balls:
             ball.move(TICK_PERIOD/1000)
