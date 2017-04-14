@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 """\
-Usage: multiple.py
+Usage: multiple.py [--with-bike-lane]
 
 To run an example of a simple simulation using pytraffic.
 In this example there are multiple balls, they keep coming
 out at a regular pace with a constant speed.
+
+Options:
+--with-bike-lane   Do simulation with bike lane
 """
 
 from math import pi
@@ -21,7 +24,7 @@ from pytraffic.entities import Arc
 from pytraffic.entities import Point
 from pytraffic.entities import Ball
 
-from pytraffic.colors import RED, GREEN, WHITE
+from pytraffic.colors import RED, GREEN, WHITE, BLUE
 
 
 SCREEN_SIZE = (799, 535) # In pixels
@@ -140,24 +143,34 @@ def remove_balls_that_exited(balls):
     return _
 
 
-def simulation():
+def simulation(with_bike_lane):
 
     # World width and height in meters
     world = World(188, 125.88)
 
     # Now let us define a trajectory
-    trajectories = [ Trajectory(Line(Point(0, 69.18), Point(99.76, 69.18)),
-                                Arc(Point(99.76, 65.88), 3.5, (3*pi/2, 2*pi)),
-                                Line(Point(102.76, 65.88), Point(102.76, 0))),
-                     Trajectory(Line(Point(188, 67.18), Point(103.53, 67.18)),
-                                Arc(Point(104.29, 65.95), 1.53, (3*pi/2, pi)),
-                                Line(Point(102.76, 65.65), Point(102.76, 0)))]
+    trajectories = [ Trajectory(Line(Point(0, 69.18), Point(98.76, 69.18)),
+                                Arc(Point(98.76, 65.88), 3.5, (3*pi/2, 2*pi)),
+                                Line(Point(101.76, 65.88), Point(101.76, 0))),
+                     Trajectory(Line(Point(0, 69.18), Point(101.76, 69.18)),
+                                Arc(Point(101.76, 65.88), 3.5, (3*pi/2, 2*pi)),
+                                Line(Point(104.76, 65.88), Point(104.76, 0)))]
+
+    if with_bike_lane:
+        bike_lane = Trajectory(Line(Point(0, 74.19), Point(94.76, 74.19)),
+                               Arc(Point(94.76, 70.88), 3.5, (3*pi/2, 2*pi)),
+                               Line(Point(97.76, 70.88), Point(97.76, 0)))
+
+        trajectories.append(bike_lane)
 
     # mean=14m/s (50Km/h), std deviation=25%
     car_shooter = BallShooter(trajectories[0], 5, 14, 14*.25, RED)
 
     # mean=6.1m/s (21Km/h), std deviation=25%
-    bike_shooter = BallShooter(trajectories[0], 13, 6.1, 6.1*.25, GREEN)
+    bike_shooter = BallShooter(trajectories[1], 13, 6.1, 6.1*.25, GREEN)
+
+    if with_bike_lane:
+        bike_lane_shooter = BallShooter(bike_lane, 13, 6.1, 6.1*.25, BLUE)
 
     # Add some vehicles (balls)
     balls = []
@@ -191,6 +204,12 @@ def simulation():
             bike.tag = 'vehicular_cyclist'
             balls.append(bike)
 
+        if with_bike_lane:
+            bike = bike_lane_shooter.spawn(TICK_PERIOD/1000)
+            if bike is not None and get_visible_ball(bike, balls) is None:
+                bike.tag = 'cyclestrian'
+                balls.append(bike)
+
         for ball in balls:
             ball.move(TICK_PERIOD/1000)
             ball.render(world, screen)
@@ -211,4 +230,4 @@ def simulation():
 if __name__ == '__main__':
     ARGS = docopt(__doc__)
 
-    simulation()
+    simulation(ARGS['--with-bike-lane'])
