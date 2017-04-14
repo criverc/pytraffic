@@ -53,6 +53,31 @@ def adjust_speeds(balls):
                 ball.set_speed(min(ball.base_speed, ball.speed*1.03))
 
 
+def get_colliding_ball(ball, balls):
+
+    for other_ball in balls:
+        if ball is other_ball:
+            continue
+
+        if ball.intersects(other_ball):
+            return other_ball
+
+
+def remove_balls_that_collide(balls):
+
+    _ = []
+
+    for ball in balls:
+
+        colliding_ball = get_colliding_ball(ball, balls)
+
+        if colliding_ball is not None:
+            print('COLLISION!! =8-{')
+        else:
+            _.append(ball)
+
+    return _
+
 
 class BallShooter(object):
 
@@ -153,6 +178,7 @@ def simulation():
 
         adjust_speeds(balls)
         balls = remove_balls_that_exited(balls)
+        balls = remove_balls_that_collide(balls)
 
         print('number of balls: %d, elapsed time: %.4f seconds\r' % (len(balls), _time), end='')
 

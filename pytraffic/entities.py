@@ -355,3 +355,11 @@ class Ball(object):
 
         self.distances_to[ball] = current_distance
         return speed
+
+
+    def intersects(self, ball):
+        """To determine if it intersects with another ball
+
+        If there is intersection then there is a collision"""
+
+        return self.distance_to(ball) < self.radius + ball.radius
