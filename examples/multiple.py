@@ -63,6 +63,16 @@ def get_colliding_ball(ball, balls):
             return other_ball
 
 
+def get_visible_ball(ball, balls):
+
+    for other_ball in balls:
+        if ball is other_ball:
+            continue
+
+        if ball.intersects(other_ball) or ball.can_see(other_ball):
+            return other_ball
+
+
 def remove_balls_that_collide(balls):
 
     _ = []
@@ -165,11 +175,11 @@ def simulation():
             trajectory.render(world, screen)
 
         car = car_shooter.spawn(TICK_PERIOD/1000)
-        if car is not None:
+        if car is not None and get_visible_ball(car, balls) is None:
             balls.append(car)
 
         bike = bike_shooter.spawn(TICK_PERIOD/1000)
-        if bike is not None:
+        if bike is not None and get_visible_ball(bike, balls) is None:
             balls.append(bike)
 
         for ball in balls:
