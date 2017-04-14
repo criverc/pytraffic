@@ -9,6 +9,8 @@ out at a regular pace with a constant speed.
 
 from math import pi
 from docopt import docopt
+from collections import defaultdict
+from pprint import pprint
 import pygame
 from numpy.random import normal
 
@@ -73,6 +75,8 @@ def get_visible_ball(ball, balls):
             return other_ball
 
 
+collision_statistics = defaultdict(int)
+
 def remove_balls_that_collide(balls):
 
     _ = []
@@ -82,7 +86,10 @@ def remove_balls_that_collide(balls):
         colliding_ball = get_colliding_ball(ball, balls)
 
         if colliding_ball is not None:
+            label=sorted([ball.tag, colliding_ball.tag])
+            collision_statistics['{}_{}'.format(*label)] += 0.5
             print('COLLISION!! =8-{')
+            pprint(collision_statistics)
         else:
             _.append(ball)
 
@@ -176,10 +183,12 @@ def simulation():
 
         car = car_shooter.spawn(TICK_PERIOD/1000)
         if car is not None and get_visible_ball(car, balls) is None:
+            car.tag = 'car'
             balls.append(car)
 
         bike = bike_shooter.spawn(TICK_PERIOD/1000)
         if bike is not None and get_visible_ball(bike, balls) is None:
+            bike.tag = 'vehicular_cyclist'
             balls.append(bike)
 
         for ball in balls:
