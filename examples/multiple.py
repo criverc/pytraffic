@@ -30,7 +30,17 @@ pygame.init()
 
 SCREEN_SIZE = (799, 535) # In pixels
 TICK_PERIOD = 100  # In miliseconds
+MAX_DECELERATION = -0.9 * 9.81
 FONT = pygame.font.SysFont("monospace", 19)
+
+
+def acceleration(distance, rel_speed):
+
+    acc = 0.8*(9.81/distance)*rel_speed
+    if acc < 0:
+        return max(MAX_DECELERATION, acc)
+    else:
+        return min(-MAX_DECELERATION, acc)
 
 
 def adjust_speeds(balls):
@@ -48,19 +58,17 @@ def adjust_speeds(balls):
             if ball.can_see(other_ball):
                 unimpeded = False
                 speed_to_other = ball.relative_speed_to(other_ball, TICK_PERIOD/1000)
-                distance_to_other = ball.distance_to(other_ball)
                 if speed_to_other is not None:
                     if speed_to_other < 0:
                         # we are closing! slow down
-                        brake_factor = max(0.3, min(1/distance_to_other, distance_to_other))
+                        distance_to_other = ball.distance_to(other_ball)
+                        acc = acceleration(distance_to_other, speed_to_other)
+                        new_speed = acc * TICK_PERIOD/1000 + ball.speed
+                        ball.set_speed(max(0, new_speed))
 
-                        ball.set_speed(ball.speed*brake_factor)
-
-                    elif speed_to_other > 0:
-                        # otherwise increase speed (follow)
-                        ball.set_speed(ball.speed*1.03)
         if unimpeded:
-                ball.set_speed(min(ball.base_speed, ball.speed*1.03))
+            ball.set_speed(min(ball.base_speed,
+                               0.2 * 9.81 * TICK_PERIOD/1000 + ball.speed))
 
 
 def get_colliding_ball(ball, balls):
