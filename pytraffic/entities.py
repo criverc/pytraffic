@@ -306,7 +306,7 @@ class Ball(object):
 
 
     def __get_visibility_cone(self):
-        return self.trajectory.get_tangent_cone(self.position, 0.35, self.radius*5)
+        return self.trajectory.get_tangent_cone(self.position, 0.1, self.radius*18)
 
 
     def render(self, world, screen):
