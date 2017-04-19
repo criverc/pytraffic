@@ -34,6 +34,7 @@ TICK_PERIOD = 100  # In miliseconds
 SPEED_UP = 1
 MAX_DECELERATION = -0.9 * 9.81
 TICK_PERIOD = TICK_PERIOD/SPEED_UP
+FPS = 1000/TICK_PERIOD
 
 FONT = pygame.font.SysFont("monospace", 19)
 
@@ -170,6 +171,8 @@ def remove_balls_that_exited(balls):
 
 def simulation(with_bike_lane, save_dir):
 
+    print('FPS: {}'.format(FPS))
+
     # World width and height in meters
     world = World(188, 125.88)
 
@@ -211,8 +214,7 @@ def simulation(with_bike_lane, save_dir):
 
 
     while not done:
-
-        clock.tick(1000/TICK_PERIOD)
+        clock.tick(FPS)
         _time += (TICK_PERIOD/1000)
 
         screen.blit(background, background.get_rect())
