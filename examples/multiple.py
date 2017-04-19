@@ -13,7 +13,6 @@ Options:
 from math import pi
 from docopt import docopt
 from collections import defaultdict
-from pprint import pprint
 import pygame
 from numpy.random import normal
 
@@ -24,11 +23,14 @@ from pytraffic.entities import Arc
 from pytraffic.entities import Point
 from pytraffic.entities import Ball
 
-from pytraffic.colors import RED, GREEN, WHITE, BLUE
+from pytraffic.colors import RED, GREEN, WHITE, BLUE, BLACK
 
+
+pygame.init()
 
 SCREEN_SIZE = (799, 535) # In pixels
 TICK_PERIOD = 100  # In miliseconds
+FONT = pygame.font.SysFont("monospace", 19)
 
 
 def adjust_speeds(balls):
@@ -89,14 +91,22 @@ def remove_balls_that_collide(balls):
         colliding_ball = get_colliding_ball(ball, balls)
 
         if colliding_ball is not None:
-            label=sorted([ball.tag, colliding_ball.tag])
-            collision_statistics['{}_{}'.format(*label)] += 0.5
-            print('COLLISION!! =8-{')
-            pprint(collision_statistics)
+            tags = sorted([ball.tag, colliding_ball.tag])
+            collision_statistics['{}_{}'.format(*tags)] += 0.5
+
         else:
             _.append(ball)
 
     return _
+
+
+def print_statistics(screen):
+
+    label_position = [SCREEN_SIZE[0]*.10, SCREEN_SIZE[1]*0.7]
+    for key, value in collision_statistics.items():
+        label = FONT.render('{} collisions: {}'.format(key.upper(), int(value)), 1, WHITE, BLACK)
+        screen.blit(label, label_position)
+        label_position[1] += 20  # TODO: Use line height, do not hardcode
 
 
 class BallShooter(object):
@@ -224,6 +234,7 @@ def simulation(with_bike_lane):
             if event.type == pygame.QUIT:
                 done = True
 
+        print_statistics(screen)
         pygame.display.flip()
 
 
