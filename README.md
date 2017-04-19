@@ -11,12 +11,7 @@ A Python3 Library for building traffic simulations using pygame
 
 See examples under examples subdirectory
 
-###TODO:
-1. There are still no collisions!
-3. We should display more data on the screen.
-4. Examples should now include different trajectories
-5. Collect accidente statistics
-
+###INSTALLATION:
 To install use:
 
 python3 setup.py install
