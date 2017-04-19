@@ -30,17 +30,20 @@ pygame.init()
 
 SCREEN_SIZE = (799, 535) # In pixels
 TICK_PERIOD = 100  # In miliseconds
+SPEED_UP = 1
 MAX_DECELERATION = -0.9 * 9.81
+TICK_PERIOD = TICK_PERIOD/SPEED_UP
+
 FONT = pygame.font.SysFont("monospace", 19)
 
 
 def acceleration(distance, rel_speed):
 
-    acc = 0.8*(9.81/distance)*rel_speed
+    acc = 0.8*(9.81/distance)*(rel_speed/SPEED_UP)
     if acc < 0:
-        return max(MAX_DECELERATION, acc)
+        return max(MAX_DECELERATION, acc) * SPEED_UP * SPEED_UP
     else:
-        return min(-MAX_DECELERATION, acc)
+        return min(-MAX_DECELERATION, acc) * SPEED_UP * SPEED_UP
 
 
 def adjust_speeds(balls):
@@ -68,7 +71,7 @@ def adjust_speeds(balls):
 
         if unimpeded:
             ball.set_speed(min(ball.base_speed,
-                               0.2 * 9.81 * TICK_PERIOD/1000 + ball.speed))
+                               0.2 * 9.81 * SPEED_UP * SPEED_UP * TICK_PERIOD/1000 + ball.speed))
 
 
 def get_colliding_ball(ball, balls):
@@ -125,7 +128,7 @@ class BallShooter(object):
 
     def __init__(self, trajectory, period, mean, spread, color):
         self.__time = 0
-        self.__PERIOD = period
+        self.__PERIOD = period/SPEED_UP
         self.__trajectory = trajectory
         self.__mean = mean
         self.__spread = spread
@@ -134,7 +137,7 @@ class BallShooter(object):
 
     def __really_spawn(self):
         ball = Ball(1, self.__trajectory, color=self.__color, draw_cone=True)
-        ball.set_speed(normal(self.__mean, self.__spread))
+        ball.set_speed(normal(self.__mean, self.__spread)*SPEED_UP)
 
         return ball
 
@@ -239,7 +242,7 @@ def simulation(with_bike_lane):
         balls = remove_balls_that_exited(balls)
         balls = remove_balls_that_collide(balls)
 
-        print('number of balls: %d, elapsed time: %.4f seconds\r' % (len(balls), _time), end='')
+        print('number of balls: %d, elapsed time: %.4f seconds\r' % (len(balls), _time * SPEED_UP), end='')
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
