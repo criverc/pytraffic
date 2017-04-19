@@ -30,7 +30,7 @@ from pytraffic.colors import RED, GREEN, WHITE, BLUE, BLACK
 pygame.init()
 
 SCREEN_SIZE = (799, 535) # In pixels
-TICK_PERIOD = 100  # In miliseconds
+TICK_PERIOD = 80  # In miliseconds
 SPEED_UP = 1
 MAX_DECELERATION = -0.9 * 9.81
 TICK_PERIOD = TICK_PERIOD/SPEED_UP
