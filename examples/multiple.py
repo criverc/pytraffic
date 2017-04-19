@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """\
-Usage: multiple.py [--with-bike-lane]
+Usage: multiple.py [--with-bike-lane] [--save=dir]
 
 To run an example of a simple simulation using pytraffic.
 In this example there are multiple balls, they keep coming
@@ -8,6 +8,7 @@ out at a regular pace with a constant speed.
 
 Options:
 --with-bike-lane   Do simulation with bike lane
+--save=dir         Directory into which save a movie of the simulation
 """
 
 from math import pi
@@ -167,7 +168,7 @@ def remove_balls_that_exited(balls):
     return _
 
 
-def simulation(with_bike_lane):
+def simulation(with_bike_lane, save_dir):
 
     # World width and height in meters
     world = World(188, 125.88)
@@ -206,6 +207,7 @@ def simulation(with_bike_lane):
     done = False
     clock = pygame.time.Clock()
     _time = 0
+    frame_no = 0
 
 
     while not done:
@@ -251,8 +253,12 @@ def simulation(with_bike_lane):
         print_statistics(screen)
         pygame.display.flip()
 
+        if save_dir:
+            frame_no += 1
+            pygame.image.save(screen, '{}/image{}.jpeg'.format(save_dir, frame_no))
+
 
 if __name__ == '__main__':
     ARGS = docopt(__doc__)
 
-    simulation(ARGS['--with-bike-lane'])
+    simulation(ARGS['--with-bike-lane'], ARGS['--save'])
