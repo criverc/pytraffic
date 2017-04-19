@@ -38,12 +38,15 @@ def adjust_speeds(balls):
 
     for ball in balls:
 
+        unimpeded = True
+
         for other_ball in balls:
 
             if ball is other_ball:
                 continue
 
             if ball.can_see(other_ball):
+                unimpeded = False
                 speed_to_other = ball.relative_speed_to(other_ball, TICK_PERIOD/1000)
                 distance_to_other = ball.distance_to(other_ball)
                 if speed_to_other is not None:
@@ -56,7 +59,7 @@ def adjust_speeds(balls):
                     elif speed_to_other > 0:
                         # otherwise increase speed (follow)
                         ball.set_speed(ball.speed*1.03)
-            else:
+        if unimpeded:
                 ball.set_speed(min(ball.base_speed, ball.speed*1.03))
 
 
