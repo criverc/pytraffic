@@ -297,8 +297,12 @@ def simulation(with_bike_lane, save_dir, speed_up):
             frame_no += 1
             pygame.image.save(screen, '{}/image{}.jpeg'.format(save_dir, frame_no))
 
+        yield True
+
 
 if __name__ == '__main__':
     ARGS = docopt(__doc__)
 
-    simulation(ARGS['--with-bike-lane'], ARGS['--save'], SPEED_UP)
+    for _ in simulation(ARGS['--with-bike-lane'], ARGS['--save'], SPEED_UP):
+        if not _:
+            break
