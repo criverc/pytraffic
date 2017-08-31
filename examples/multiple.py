@@ -33,7 +33,8 @@ SCREEN_SIZE = (799, 535) # In pixels
 SPEED_UP = 1
 MAX_DECELERATION = -0.9 * 9.81
 
-FONT = pygame.font.SysFont("monospace", 19)
+FONT = pygame.font.SysFont("monospace", 16)
+LINE_HEIGHT = FONT.size("hola")[1]
 
 
 def tick_period(speed_up):
@@ -111,7 +112,7 @@ def remove_balls_that_collide(balls):
 
         if colliding_ball is not None:
             tags = sorted([ball.tag, colliding_ball.tag])
-            collision_statistics['{}_{}'.format(*tags)] += 0.5
+            collision_statistics['{}-{}'.format(*tags)] += 0.5
 
         else:
             _.append(ball)
@@ -119,13 +120,34 @@ def remove_balls_that_collide(balls):
     return _
 
 
-def print_statistics(screen):
+def print_statistics(screen, cum_no_cars, cum_no_vhc, cum_no_cyclestrians):
 
-    label_position = [SCREEN_SIZE[0]*.10, SCREEN_SIZE[1]*0.7]
+    __x = SCREEN_SIZE[0]*.10
+    __y = SCREEN_SIZE[1]*.6
+
+    pygame.draw.rect(screen, WHITE, [__x, __y, 600, 200])  # TODO: Use line dimensions
+
+    label_position = [__x, __y]
+
+    label = FONT.render('Colisiones detectadas:', 1, BLACK)
+    screen.blit(label, label_position)
+
     for key, value in collision_statistics.items():
-        label = FONT.render('{} collisions: {}'.format(key.upper(), int(value)), 1, WHITE, BLACK)
+        label_position[1] += LINE_HEIGHT
+        label = FONT.render('Tipo: {:30}: {}'.format(key.upper(), int(value)), 1, BLACK)
         screen.blit(label, label_position)
-        label_position[1] += 20  # TODO: Use line height, do not hardcode
+
+
+    label_position[1] += 2*LINE_HEIGHT
+    label = FONT.render('Totales vehículos:', 1, BLACK)
+    screen.blit(label, label_position)
+
+    for key, value in [('Coches', cum_no_cars),
+                       ('Ciclistas vehiculares', cum_no_vhc),
+                       ('Cicleatones', cum_no_cyclestrians)]:
+        label_position[1] += LINE_HEIGHT
+        label = FONT.render('{:30}: {}'.format(key.upper(), int(value)), 1, BLACK)
+        screen.blit(label, label_position)
 
 
 class BallShooter(object):
@@ -218,6 +240,10 @@ def simulation(with_bike_lane, save_dir, speed_up):
     _time = 0
     frame_no = 0
 
+    cum_no_cars = 0
+    cum_no_vhc = 0
+    cum_no_cyclestrians = 0
+
 
     while not done:
         clock.tick(fps)
@@ -231,20 +257,24 @@ def simulation(with_bike_lane, save_dir, speed_up):
 
         car = car_shooter.spawn(tick_period(speed_up))
         if car is not None and get_visible_ball(car, balls) is None:
-            car.tag = 'car'
+            car.tag = 'coche'
             balls.append(car)
+            cum_no_cars += 1
 
 
         bike = bike_shooter.spawn(tick_period(speed_up))
         if bike is not None and get_visible_ball(bike, balls) is None:
-            bike.tag = 'vehicular_cyclist'
+            bike.tag = 'ciclista vehicular'
             balls.append(bike)
+            cum_no_vhc += 1
+
 
         if with_bike_lane:
             bike = bike_lane_shooter.spawn(tick_period(speed_up))
             if bike is not None and get_visible_ball(bike, balls) is None:
-                bike.tag = 'cyclestrian'
+                bike.tag = 'cicleatón'
                 balls.append(bike)
+                cum_no_cyclestrians += 1
 
         for ball in balls:
             ball.move(tick_period(speed_up))
@@ -260,7 +290,7 @@ def simulation(with_bike_lane, save_dir, speed_up):
             if event.type == pygame.QUIT:
                 done = True
 
-        print_statistics(screen)
+        print_statistics(screen, cum_no_cars, cum_no_vhc, cum_no_cyclestrians)
         pygame.display.flip()
 
         if save_dir:
