@@ -19,5 +19,4 @@ python3 setup.py install
 
 To run the multiple simulation using a gui type:
 
-cd examples
-./gui.py
+cd examples; ./gui.py
