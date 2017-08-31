@@ -30,25 +30,27 @@ from pytraffic.colors import RED, GREEN, WHITE, BLUE, BLACK
 pygame.init()
 
 SCREEN_SIZE = (799, 535) # In pixels
-TICK_PERIOD = 80  # In miliseconds
 SPEED_UP = 1
 MAX_DECELERATION = -0.9 * 9.81
-TICK_PERIOD = TICK_PERIOD/SPEED_UP
-FPS = 1000/TICK_PERIOD
 
 FONT = pygame.font.SysFont("monospace", 19)
 
 
-def acceleration(distance, rel_speed):
+def tick_period(speed_up):
 
-    acc = 0.8*(9.81/distance)*(rel_speed/SPEED_UP)
+    return ({ 1: 20, 2: 40, 3: 80, 4: 100, 5: 120, 6: 160 }[speed_up])/(1000*speed_up)
+
+
+def acceleration(distance, rel_speed, speed_up):
+
+    acc = 0.8*(9.81/distance)*(rel_speed/speed_up)
     if acc < 0:
-        return max(MAX_DECELERATION, acc) * SPEED_UP * SPEED_UP
+        return max(MAX_DECELERATION, acc) * speed_up * speed_up
     else:
-        return min(-MAX_DECELERATION, acc) * SPEED_UP * SPEED_UP
+        return min(-MAX_DECELERATION, acc) * speed_up * speed_up
 
 
-def adjust_speeds(balls):
+def adjust_speeds(balls, speed_up):
     """To adjust speed of all balls"""
 
     for ball in balls:
@@ -62,18 +64,19 @@ def adjust_speeds(balls):
 
             if ball.can_see(other_ball):
                 unimpeded = False
-                speed_to_other = ball.relative_speed_to(other_ball, TICK_PERIOD/1000)
+                speed_to_other = ball.relative_speed_to(other_ball, tick_period(speed_up))
                 if speed_to_other is not None:
                     if speed_to_other < 0:
                         # we are closing! slow down
                         distance_to_other = ball.distance_to(other_ball)
-                        acc = acceleration(distance_to_other, speed_to_other)
-                        new_speed = acc * TICK_PERIOD/1000 + ball.speed
+                        acc = acceleration(distance_to_other, speed_to_other, speed_up)
+                        new_speed = acc * tick_period(speed_up) + ball.speed
                         ball.set_speed(max(0, new_speed))
 
         if unimpeded:
             ball.set_speed(min(ball.base_speed,
-                               0.2 * 9.81 * SPEED_UP * SPEED_UP * TICK_PERIOD/1000 + ball.speed))
+                               0.2 * 9.81 * speed_up * speed_up * tick_period(speed_up)
+                               + ball.speed))
 
 
 def get_colliding_ball(ball, balls):
@@ -128,9 +131,10 @@ def print_statistics(screen):
 class BallShooter(object):
 
 
-    def __init__(self, trajectory, period, mean, spread, color):
+    def __init__(self, speed_up, trajectory, period, mean, spread, color):
         self.__time = 0
-        self.__PERIOD = period/SPEED_UP
+        self.__speed_up = speed_up
+        self.__PERIOD = period/speed_up
         self.__trajectory = trajectory
         self.__mean = mean
         self.__spread = spread
@@ -139,7 +143,7 @@ class BallShooter(object):
 
     def __really_spawn(self):
         ball = Ball(1, self.__trajectory, color=self.__color, draw_cone=True)
-        ball.set_speed(normal(self.__mean, self.__spread)*SPEED_UP)
+        ball.set_speed(normal(self.__mean, self.__spread)*self.__speed_up)
 
         return ball
 
@@ -169,9 +173,11 @@ def remove_balls_that_exited(balls):
     return _
 
 
-def simulation(with_bike_lane, save_dir):
+def simulation(with_bike_lane, save_dir, speed_up):
 
-    print('FPS: {}'.format(FPS))
+    fps = speed_up/tick_period(speed_up)
+
+    print('desired FPS: {}'.format(fps))
 
     # World width and height in meters
     world = World(188, 125.88)
@@ -192,13 +198,13 @@ def simulation(with_bike_lane, save_dir):
         trajectories.append(bike_lane)
 
     # mean=14m/s (50Km/h), std deviation=25%
-    car_shooter = BallShooter(trajectories[0], 5, 14, 14*.25, RED)
+    car_shooter = BallShooter(speed_up, trajectories[0], 5, 14, 14*.25, RED)
 
     # mean=6.1m/s (21Km/h), std deviation=25%
-    bike_shooter = BallShooter(trajectories[1], 13, 6.1, 6.1*.25, GREEN)
+    bike_shooter = BallShooter(speed_up, trajectories[1], 13, 6.1, 6.1*.25, GREEN)
 
     if with_bike_lane:
-        bike_lane_shooter = BallShooter(bike_lane, 13, 6.1, 6.1*.25, BLUE)
+        bike_lane_shooter = BallShooter(speed_up, bike_lane, 20, 6.1, 6.1*.25, BLUE)
 
     # Add some vehicles (balls)
     balls = []
@@ -214,39 +220,41 @@ def simulation(with_bike_lane, save_dir):
 
 
     while not done:
-        clock.tick(FPS)
-        _time += (TICK_PERIOD/1000)
+        clock.tick(fps)
+        _time += tick_period(speed_up)
 
         screen.blit(background, background.get_rect())
 
         for trajectory in trajectories:
             trajectory.render(world, screen)
 
-        car = car_shooter.spawn(TICK_PERIOD/1000)
+
+        car = car_shooter.spawn(tick_period(speed_up))
         if car is not None and get_visible_ball(car, balls) is None:
             car.tag = 'car'
             balls.append(car)
 
-        bike = bike_shooter.spawn(TICK_PERIOD/1000)
+
+        bike = bike_shooter.spawn(tick_period(speed_up))
         if bike is not None and get_visible_ball(bike, balls) is None:
             bike.tag = 'vehicular_cyclist'
             balls.append(bike)
 
         if with_bike_lane:
-            bike = bike_lane_shooter.spawn(TICK_PERIOD/1000)
+            bike = bike_lane_shooter.spawn(tick_period(speed_up))
             if bike is not None and get_visible_ball(bike, balls) is None:
                 bike.tag = 'cyclestrian'
                 balls.append(bike)
 
         for ball in balls:
-            ball.move(TICK_PERIOD/1000)
+            ball.move(tick_period(speed_up))
             ball.render(world, screen)
 
-        adjust_speeds(balls)
+        adjust_speeds(balls, speed_up)
         balls = remove_balls_that_exited(balls)
         balls = remove_balls_that_collide(balls)
 
-        print('number of balls: %d, elapsed time: %.4f seconds\r' % (len(balls), _time * SPEED_UP), end='')
+        print('fps: %d, number of balls: %d, elapsed time: %.4f seconds\r' % (clock.get_fps(), len(balls), _time * speed_up), end='')
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -263,4 +271,4 @@ def simulation(with_bike_lane, save_dir):
 if __name__ == '__main__':
     ARGS = docopt(__doc__)
 
-    simulation(ARGS['--with-bike-lane'], ARGS['--save'])
+    simulation(ARGS['--with-bike-lane'], ARGS['--save'], SPEED_UP)
